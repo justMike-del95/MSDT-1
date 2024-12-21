@@ -1,5 +1,10 @@
 import tkinter as tk
 import random
+import logging
+
+# Настройка логирования
+logging.basicConfig(filename='minesweeper.log', level=logging.INFO, format='%(asctime)s | %(message)s')
+
 
 class Minesweeper:
     def __init__(self, master):
@@ -38,6 +43,7 @@ class Minesweeper:
         elif level == "Hard":
             self.width, self.height, self.mines = 20, 20, 60
 
+        logging.info(f"Difficulty chosen: {self.difficulty}")
         self.start_new_game()
 
     def start_new_game(self):
@@ -50,6 +56,7 @@ class Minesweeper:
         self.populate_mines()
         self.calculate_numbers()
         self.create_widgets()
+        logging.info("New game started")
 
     def create_widgets(self):
         # Создание кнопок для игрового поля
@@ -61,7 +68,7 @@ class Minesweeper:
                 self.buttons[y][x] = button
 
     def populate_mines(self):
-        # Заполнение поля минами
+        #Заполнение поля минами
         mine_positions = random.sample(range(self.width * self.height), self.mines)
         for pos in mine_positions:
             x = pos % self.width
@@ -96,10 +103,12 @@ class Minesweeper:
             self.game_over = True
             self.show_all_mines()
             self.show_message("Вы попали на мину! Игра окончена.")
+            logging.info("Game end. Failed")
             return
 
         self.visible[y][x] = self.field[y][x]
         self.buttons[y][x].config(text=self.field[y][x], state='disabled', bg=self.get_color(self.field[y][x]))
+        logging.info(f"Open case ({x}, {y}): {self.field[y][x]}")
 
         if self.field[y][x] == '0':
             self.reveal_adjacent_cells(x, y)
@@ -107,6 +116,7 @@ class Minesweeper:
         if all(self.visible[y][x] != ' ' for y in range(self.height) for x in range(self.width) if
                self.field[y][x] != '*'):
             self.show_message("Поздравляем! Вы выиграли!")
+            logging.info("Game end. Passed")
 
     def reveal_adjacent_cells(self, x, y):
         # Открытие соседних клеток, если открытая клетка пустая
